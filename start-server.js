@@ -28,7 +28,7 @@ functions.http('startServer', async (req, res) => {
     }
 
     // Configuration from environment variables
-    const projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT;
+    const projectId = process.env.GOOGLE_CLOUD_PROJECT || 'linear-skill-471411-n9';
     const zone = process.env.MINECRAFT_ZONE || 'us-central1-f';
     const instanceName = process.env.MINECRAFT_INSTANCE || 'instance-20250920-120747';
 
