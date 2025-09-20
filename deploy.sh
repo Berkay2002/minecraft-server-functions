@@ -36,7 +36,7 @@ gcloud run deploy minecraft-start-server \
     --base-image nodejs20 \
     --region "$REGION" \
     --allow-unauthenticated \
-    --set-env-vars="MINECRAFT_ZONE=$MINECRAFT_ZONE,MINECRAFT_INSTANCE=$MINECRAFT_INSTANCE" \
+    --set-env-vars="GOOGLE_CLOUD_PROJECT=$PROJECT_ID,MINECRAFT_ZONE=$MINECRAFT_ZONE,MINECRAFT_INSTANCE=$MINECRAFT_INSTANCE" \
     --max-instances=1 \
     --timeout=300 \
     --memory=512Mi \
@@ -50,7 +50,7 @@ gcloud run deploy minecraft-stop-server \
     --base-image nodejs20 \
     --region "$REGION" \
     --allow-unauthenticated \
-    --set-env-vars="MINECRAFT_ZONE=$MINECRAFT_ZONE,MINECRAFT_INSTANCE=$MINECRAFT_INSTANCE" \
+    --set-env-vars="GOOGLE_CLOUD_PROJECT=$PROJECT_ID,MINECRAFT_ZONE=$MINECRAFT_ZONE,MINECRAFT_INSTANCE=$MINECRAFT_INSTANCE" \
     --max-instances=1 \
     --timeout=300 \
     --memory=512Mi \
@@ -64,7 +64,7 @@ gcloud run deploy minecraft-add-friend \
     --base-image nodejs20 \
     --region "$REGION" \
     --allow-unauthenticated \
-    --set-env-vars="MINECRAFT_ZONE=$MINECRAFT_ZONE,MINECRAFT_INSTANCE=$MINECRAFT_INSTANCE,MINECRAFT_FIREWALL_RULE=$MINECRAFT_FIREWALL_RULE" \
+    --set-env-vars="GOOGLE_CLOUD_PROJECT=$PROJECT_ID,MINECRAFT_ZONE=$MINECRAFT_ZONE,MINECRAFT_INSTANCE=$MINECRAFT_INSTANCE,MINECRAFT_FIREWALL_RULE=$MINECRAFT_FIREWALL_RULE" \
     --max-instances=5 \
     --timeout=180 \
     --memory=512Mi \
@@ -83,3 +83,5 @@ echo "🔧 Test your functions:"
 echo "  curl -X POST [START_SERVER_URL]"
 echo "  curl -X POST [STOP_SERVER_URL]"
 echo "  curl -X POST [ADD_FRIEND_URL] -H \"Content-Type: application/json\" -d '{\"name\": \"TestFriend\"}'"
+echo ""
+echo "🎮 Your Minecraft server functions are ready!"
