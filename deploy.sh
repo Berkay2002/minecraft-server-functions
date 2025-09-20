@@ -3,22 +3,18 @@
 
 set -e
 
-# Configuration
-PROJECT_ID="${GOOGLE_CLOUD_PROJECT:-$(gcloud config get-value project)}"
+# Your actual configuration based on VM and firewall JSON
+PROJECT_ID="linear-skill-471411-n9"
 REGION="${REGION:-europe-west1}"
-MINECRAFT_ZONE="${MINECRAFT_ZONE:-europe-west1-b}"
-MINECRAFT_INSTANCE="${MINECRAFT_INSTANCE:-minecraft-server}"
-MINECRAFT_FIREWALL_RULE="${MINECRAFT_FIREWALL_RULE:-minecraft-server-allow}"
-
-if [ -z "$PROJECT_ID" ]; then
-    echo "Error: PROJECT_ID not set. Please set GOOGLE_CLOUD_PROJECT or configure gcloud"
-    exit 1
-fi
+MINECRAFT_ZONE="us-central1-f"
+MINECRAFT_INSTANCE="instance-20250920-120747"
+MINECRAFT_FIREWALL_RULE="minecraft-server-ingress"
 
 echo "Deploying Minecraft Server Functions to project: $PROJECT_ID"
 echo "Region: $REGION"
 echo "Minecraft Zone: $MINECRAFT_ZONE"
 echo "Minecraft Instance: $MINECRAFT_INSTANCE"
+echo "Minecraft Firewall Rule: $MINECRAFT_FIREWALL_RULE"
 echo ""
 
 # Check if we're in the right directory
@@ -50,7 +46,7 @@ echo ""
 echo "🛑 Deploying Stop Server Function..."
 gcloud run deploy minecraft-stop-server \
     --source . \
-    --function stopServer \
+    --function startServer \
     --base-image nodejs20 \
     --region "$REGION" \
     --allow-unauthenticated \
