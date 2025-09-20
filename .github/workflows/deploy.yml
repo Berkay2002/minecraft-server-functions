@@ -7,11 +7,11 @@ on:
     branches: [ main, master ]
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  PROJECT_ID: linear-skill-471411-n9
   REGION: europe-west1
-  MINECRAFT_ZONE: europe-west1-b
-  MINECRAFT_INSTANCE: minecraft-server
-  MINECRAFT_FIREWALL_RULE: minecraft-server-allow
+  MINECRAFT_ZONE: us-central1-f
+  MINECRAFT_INSTANCE: instance-20250920-120747
+  MINECRAFT_FIREWALL_RULE: minecraft-server-ingress
 
 jobs:
   deploy:
@@ -41,7 +41,7 @@ jobs:
     - name: Setup Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
       with:
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        project_id: ${{ env.PROJECT_ID }}
 
     - name: Deploy Start Server Function
       run: |
@@ -96,3 +96,4 @@ jobs:
         echo "- Region: $REGION" >> $GITHUB_STEP_SUMMARY
         echo "- Minecraft Zone: $MINECRAFT_ZONE" >> $GITHUB_STEP_SUMMARY
         echo "- Minecraft Instance: $MINECRAFT_INSTANCE" >> $GITHUB_STEP_SUMMARY
+        echo "- Firewall Rule: $MINECRAFT_FIREWALL_RULE" >> $GITHUB_STEP_SUMMARY
