@@ -1,8 +1,9 @@
 const functions = require('@google-cloud/functions-framework');
-const {InstancesClient} = require('@google-cloud/compute');
+const {InstancesClient, ZoneOperationsClient} = require('@google-cloud/compute');
 
-// Initialize the Compute Engine client
+// Initialize the Compute Engine clients
 const instancesClient = new InstancesClient();
+const operationsClient = new ZoneOperationsClient();
 
 /**
  * Cloud Run Function to start the Minecraft server
@@ -21,36 +22,46 @@ functions.http('startServer', async (req, res) => {
       return;
     }
 
-    // Configuration - you can also use environment variables
+    // Configuration from environment variables
     const projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT;
-    const zone = process.env.MINECRAFT_ZONE || 'europe-west1-b';
-    const instanceName = process.env.MINECRAFT_INSTANCE || 'minecraft-server';
+    const zone = process.env.MINECRAFT_ZONE || 'us-central1-f';
+    const instanceName = process.env.MINECRAFT_INSTANCE || 'instance-20250920-120747';
 
     if (!projectId) {
       throw new Error('Project ID not found. Set GOOGLE_CLOUD_PROJECT environment variable.');
     }
 
-    console.log(`Starting Minecraft server: ${instanceName} in zone: ${zone}`);
+    console.log(`Starting Minecraft server: ${instanceName} in zone: ${zone}, project: ${projectId}`);
 
-    // Check if instance is already running
+    // Check current instance status first
     const [instance] = await instancesClient.get({
       project: projectId,
       zone: zone,
       instance: instanceName,
     });
 
+    console.log(`Current instance status: ${instance.status}`);
+
     if (instance.status === 'RUNNING') {
-      console.log('Minecraft server is already running');
-      res.status(200).json({
+      const externalIp = instance.networkInterfaces?.[0]?.accessConfigs?.[0]?.natIP;
+      return res.json({
         success: true,
         message: 'Minecraft server is already running',
         status: instance.status,
-        externalIp: instance.networkInterfaces[0]?.accessConfigs[0]?.natIP || 'N/A'
+        externalIp: externalIp || 'N/A'
       });
-      return;
+    }
+
+    if (instance.status === 'STOPPING') {
+      return res.json({
+        success: false,
+        message: 'Server is currently stopping, please wait and try again',
+        status: instance.status
+      });
     }
 
     // Start the instance
+    console.log('Starting instance...');
     const [operation] = await instancesClient.start({
       project: projectId,
       zone: zone,
@@ -59,7 +70,7 @@ functions.http('startServer', async (req, res) => {
 
     console.log(`Start operation initiated: ${operation.name}`);
 
-    // Wait for the operation to complete (optional, but recommended)
+    // Wait for operation to complete using the correct client
     let operationStatus = operation;
     const maxWaitTime = 120000; // 2 minutes
     const startTime = Date.now();
@@ -67,10 +78,10 @@ functions.http('startServer', async (req, res) => {
     while (operationStatus.status !== 'DONE' && (Date.now() - startTime) < maxWaitTime) {
       await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
       
-      const [updatedOperation] = await instancesClient.getOperation({
+      const [updatedOperation] = await operationsClient.get({
         project: projectId,
         zone: zone,
-        operation: operation.name,
+        operation: operation.name.split('/').pop(), // Extract operation name
       });
       operationStatus = updatedOperation;
     }
@@ -83,19 +94,21 @@ functions.http('startServer', async (req, res) => {
         instance: instanceName,
       });
 
+      const externalIp = updatedInstance.networkInterfaces?.[0]?.accessConfigs?.[0]?.natIP;
+
       console.log('Minecraft server started successfully');
-      res.status(200).json({
+      res.json({
         success: true,
         message: 'Minecraft server started successfully',
         status: updatedInstance.status,
-        externalIp: updatedInstance.networkInterfaces[0]?.accessConfigs[0]?.natIP || 'N/A',
+        externalIp: externalIp || 'N/A',
         operationId: operation.name
       });
     } else {
       console.log('Start operation is still in progress');
       res.status(202).json({
         success: true,
-        message: 'Minecraft server start operation initiated',
+        message: 'Minecraft server start operation initiated (may take a few minutes)',
         operationId: operation.name,
         status: 'STARTING'
       });
