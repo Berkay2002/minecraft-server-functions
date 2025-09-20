@@ -46,7 +46,7 @@ echo ""
 echo "🛑 Deploying Stop Server Function..."
 gcloud run deploy minecraft-stop-server \
     --source . \
-    --function startServer \
+    --function stopServer \
     --base-image nodejs20 \
     --region "$REGION" \
     --allow-unauthenticated \
