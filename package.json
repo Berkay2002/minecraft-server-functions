@@ -1,0 +1,20 @@
+{
+  "name": "minecraft-server-functions",
+  "version": "1.0.0",
+  "description": "Gen 2 Cloud Run Functions for Minecraft server management",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "start": "functions-framework",
+    "deploy": "gcloud run deploy"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.4.0",
+    "@google-cloud/compute": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}
